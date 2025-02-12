@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model PoliticalParty {
+  id   String @id @default(uuid())
+  name String @unique
+
+  candidates Candidate[]
+
+  @@map("political_parties")
+}
+
+model Candidate {
+  id     String @id @default(uuid())
+  number Int    @unique
+  name   String
+
+  politicalPartyId String
+  politicalParty   PoliticalParty @relation(fields: [politicalPartyId], references: [id])
+
+  votes Vote[]
+
+  @@map("candidates")
+}
+
+model Voter {
+  id             String @id @default(uuid())
+  electoralTitle String @unique
+  name           String
+
+  votes Vote[]
+
+  @@map("voters")
+}
+
+model Election {
+  id        String   @id @default(uuid())
+  startDate DateTime
+  endDate   DateTime
+
+  votes Vote[]
+
+  @@map("elections")
+}
+
+model Vote {
+  id String @id @default(uuid())
+
+  voterId String
+  voter   Voter  @relation(fields: [voterId], references: [id])
+
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+
+  election   Election? @relation(fields: [electionId], references: [id])
+  electionId String?
+
+  @@map("votes")
+}
